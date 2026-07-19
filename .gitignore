@@ -1,0 +1,33 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Virtual Environment folder created by poetry, pipenv, etc.
+.pytest_cache/
+.ipynb_checkpoints/
+
+# VS Code settings
+.vscode/
+
+# Local databases and logs
+*.db
+*.sqlite
+logs/
+uploads/
+backups/
+exports/
+reports/
+
+# OS specific files
+.DS_Store
+Thumbs.db

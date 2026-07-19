@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} — FakeGuard AI{% endblock %}
+
+{% block content %}
+
+<div class="auth-wrapper" data-aos="zoom-in">
+    <div class="glass-card no-hover auth-card text-center" style="max-width: 450px;">
+        <div class="auth-header">
+            <i class="fas fa-triangle-exclamation text-danger" style="font-size: 3.5rem; margin-bottom: 16px;"></i>
+            <h2>{{ title }}</h2>
+            <p class="text-muted mt-2">{{ message }}</p>
+        </div>
+        
+        <div class="mt-4">
+            <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+                <i class="fas fa-house"></i> Return to Safety
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

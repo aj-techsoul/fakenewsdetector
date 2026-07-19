@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}About{% endblock %}
+
+{% block content %}
+
+<!-- ─── Page Header ────────────────────────────────────────────────────── -->
+<div class="page-header">
+    <h1><i class="fas fa-info-circle"></i> About This Project</h1>
+    <p>AI-Powered Fake News Detection System</p>
+</div>
+
+<!-- ─── About Section ──────────────────────────────────────────────────── -->
+<section class="about-section">
+    <div class="container">
+        <div class="about-content">
+
+            <!-- Project Overview -->
+            <div class="glass-card no-hover" data-aos="fade-up" style="padding: 32px; margin-bottom: 24px;">
+                <h2 style="margin-top: 0;"><i class="fas fa-rocket" style="color: var(--primary);"></i> Project Overview</h2>
+                <p>
+                    The <strong>FakeGuard AI</strong> is an intelligent news analysis system designed to help users
+                    identify potentially fake or misleading news articles. Using advanced machine learning algorithms
+                    and natural language processing techniques, the system analyzes the linguistic patterns, structure,
+                    and content of news articles to classify them as either <strong>Real</strong> or <strong>Fake</strong>
+                    with a high degree of accuracy.
+                </p>
+                <p>
+                    This project demonstrates the practical application of NLP and supervised machine learning
+                    in combating misinformation — a critical challenge in today's digital information landscape.
+                </p>
+            </div>
+
+            <!-- How It Works -->
+            <div class="glass-card no-hover" data-aos="fade-up" style="padding: 32px; margin-bottom: 24px;">
+                <h2 style="margin-top: 0;"><i class="fas fa-gears" style="color: var(--primary);"></i> How It Works</h2>
+                <p>The system follows a standard NLP + ML pipeline:</p>
+                <ol style="color: var(--text-secondary); line-height: 2; padding-left: 20px;">
+                    <li><strong>Text Preprocessing</strong> — Cleaning, lowercasing, removing stopwords and punctuation</li>
+                    <li><strong>Stemming</strong> — Reducing words to their root form using Porter Stemmer</li>
+                    <li><strong>TF-IDF Vectorization</strong> — Converting text to numerical features using Term Frequency-Inverse Document Frequency</li>
+                    <li><strong>Classification</strong> — Using a trained PassiveAggressiveClassifier to predict the label</li>
+                    <li><strong>Confidence Scoring</strong> — Computing prediction confidence from the decision function</li>
+                    <li><strong>Explanation Generation</strong> — Analyzing linguistic patterns to produce human-readable explanations</li>
+                </ol>
+            </div>
+
+            <!-- Technology Stack -->
+            <div class="glass-card no-hover" data-aos="fade-up" style="padding: 32px; margin-bottom: 24px;">
+                <h2 style="margin-top: 0;"><i class="fas fa-layer-group" style="color: var(--primary);"></i> Technology Stack</h2>
+                <div class="tech-stack-grid">
+                    <div class="tech-item"><i class="fab fa-python"></i> Python 3</div>
+                    <div class="tech-item"><i class="fas fa-flask"></i> Flask</div>
+                    <div class="tech-item"><i class="fas fa-brain"></i> Scikit-learn</div>
+                    <div class="tech-item"><i class="fas fa-language"></i> NLTK</div>
+                    <div class="tech-item"><i class="fas fa-table"></i> Pandas</div>
+                    <div class="tech-item"><i class="fas fa-database"></i> SQLite</div>
+                    <div class="tech-item"><i class="fab fa-html5"></i> HTML5</div>
+                    <div class="tech-item"><i class="fab fa-css3-alt"></i> CSS3</div>
+                    <div class="tech-item"><i class="fab fa-js"></i> JavaScript</div>
+                    <div class="tech-item"><i class="fas fa-chart-pie"></i> Chart.js</div>
+                    <div class="tech-item"><i class="fas fa-file-pdf"></i> FPDF2</div>
+                    <div class="tech-item"><i class="fas fa-icons"></i> Font Awesome</div>
+                </div>
+            </div>
+
+            <!-- Key Features -->
+            <div class="glass-card no-hover" data-aos="fade-up" style="padding: 32px; margin-bottom: 24px;">
+                <h2 style="margin-top: 0;"><i class="fas fa-star" style="color: var(--primary);"></i> Key Features</h2>
+                <div class="tech-stack-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+                    <div class="tech-item"><i class="fas fa-check"></i> Real ML-based predictions</div>
+                    <div class="tech-item"><i class="fas fa-check"></i> Confidence scoring</div>
+                    <div class="tech-item"><i class="fas fa-check"></i> AI explanations</div>
+                    <div class="tech-item"><i class="fas fa-check"></i> Keyword analysis</div>
+                    <div class="tech-item"><i class="fas fa-check"></i> Text statistics</div>
+                    <div class="tech-item"><i class="fas fa-check"></i> PDF report generation</div>
+                    <div class="tech-item"><i class="fas fa-check"></i> Prediction history</div>
+                    <div class="tech-item"><i class="fas fa-check"></i> CSV export</div>
+                    <div class="tech-item"><i class="fas fa-check"></i> Dark mode</div>
+                    <div class="tech-item"><i class="fas fa-check"></i> Responsive design</div>
+                    <div class="tech-item"><i class="fas fa-check"></i> Interactive charts</div>
+                    <div class="tech-item"><i class="fas fa-check"></i> Admin dashboard</div>
+                </div>
+            </div>
+
+            <!-- Dataset Info -->
+            <div class="glass-card no-hover" data-aos="fade-up" style="padding: 32px; margin-bottom: 24px;">
+                <h2 style="margin-top: 0;"><i class="fas fa-database" style="color: var(--primary);"></i> Dataset</h2>
+                <p>
+                    This project uses the <strong>ISOT Fake and Real News Dataset</strong>, a well-known benchmark
+                    dataset for fake news detection research. It contains over 40,000 news articles split evenly
+                    between real and fake news, sourced from legitimate news outlets and known misinformation websites.
+                </p>
+                <p>
+                    <a href="{{ url_for('main.dataset_info') }}" style="font-weight: 600;">
+                        <i class="fas fa-arrow-right"></i> View detailed dataset metrics
+                    </a>
+                </p>
+            </div>
+
+            <!-- Contact -->
+            <div class="glass-card no-hover" data-aos="fade-up" style="padding: 32px;">
+                <h2 style="margin-top: 0;"><i class="fas fa-envelope" style="color: var(--primary);"></i> Contact</h2>
+                <p>
+                    This project was developed as a final-year mini project demonstrating the application of
+                    AI and machine learning in combating digital misinformation.
+                </p>
+                <p>
+                    For questions, feedback, or collaboration inquiries, please reach out through the
+                    project repository or contact the development team.
+                </p>
+                <div class="mt-3">
+                    <a href="{{ url_for('main.analyze') }}" class="btn btn-primary">
+                        <i class="fas fa-magnifying-glass"></i> Try It Now
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

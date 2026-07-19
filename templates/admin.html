@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Control Center — FakeGuard AI{% endblock %}
+
+{% block content %}
+
+<!-- ─── Admin Header ───────────────────────────────────────────────────── -->
+<div class="workspace-header" data-aos="fade-down">
+    <div class="header-titles">
+        <h1>Administrative Control Center</h1>
+        <p class="text-muted">Manage system users, retrain classification models, and view application logs</p>
+    </div>
+</div>
+
+<!-- ─── Statistics Summary Grid ────────────────────────────────────────── -->
+<div class="info-grid mt-3" data-aos="fade-up">
+    <div class="glass-card info-card">
+        <div class="info-card-icon"><i class="fas fa-users"></i></div>
+        <div class="info-card-value" id="totalUsers">{{ stats.total_users }}</div>
+        <div class="info-card-label">Registered Users</div>
+    </div>
+    <div class="glass-card info-card">
+        <div class="info-card-icon" style="background: var(--success-bg); color: var(--success);"><i class="fas fa-user-check"></i></div>
+        <div class="info-card-value" id="activeUsers">{{ stats.active_users }}</div>
+        <div class="info-card-label">Active Profiles</div>
+    </div>
+    <div class="glass-card info-card">
+        <div class="info-card-icon" style="background: rgba(116,185,255,0.1); color: var(--info);"><i class="fas fa-chart-line"></i></div>
+        <div class="info-card-value" id="totalPreds">{{ stats.total_predictions }}</div>
+        <div class="info-card-label">Total Predictions</div>
+    </div>
+    <div class="glass-card info-card">
+        <div class="info-card-icon" style="background: var(--danger-bg); color: var(--danger);"><i class="fas fa-ban"></i></div>
+        <div class="info-card-value" id="fakePreds">{{ stats.fake_predictions }}</div>
+        <div class="info-card-label">Fake News Flagged</div>
+    </div>
+</div>
+
+<!-- ─── Admin Tabs Section ─────────────────────────────────────────────── -->
+<div class="admin-tabs-container mt-3" data-aos="fade-up">
+    <div class="tab-triggers">
+        <button class="tab-btn active" onclick="switchAdminTab('usersTab')"><i class="fas fa-user-group"></i> User Profiles</button>
+        <button class="tab-btn" onclick="switchAdminTab('modelTab')"><i class="fas fa-brain"></i> Model Re-training</button>
+        <button class="tab-btn" onclick="switchAdminTab('logsTab')"><i class="fas fa-database"></i> Activity Logs</button>
+    </div>
+
+    <!-- User Management Tab -->
+    <div class="tab-content active" id="usersTab">
+        <div class="glass-card no-hover">
+            <div class="panel-header mb-3">
+                <h3>User Management</h3>
+                <span class="text-muted">Total: {{ stats.total_users }} registered profiles</span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Full Name</th>
+                            <th>Username</th>
+                            <th>Email Address</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Created Date</th>
+                            <th>Action Controls</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr id="userRow-{{ user.id }}">
+                            <td>{{ user.id }}</td>
+                            <td><strong>{{ user.full_name }}</strong></td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                <span class="role-badge {% if user.role == 'admin' %}admin{% else %}user{% endif %}">
+                                    {{ user.role.upper() }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge {% if user.is_active %}active{% else %}inactive{% endif %}" id="userStatusBadge-{{ user.id }}">
+                                    {% if user.is_active %}Active{% else %}Suspended{% endif %}
+                                </span>
+                            </td>
+                            <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                <div class="table-actions">
+                                    {% if user.id != current_user.id %}
+                                        <button class="btn btn-secondary btn-sm" onclick="toggleUserStatus({{ user.id }}, 'suspend')" id="suspendBtn-{{ user.id }}" style="display: {% if user.is_active %}inline-block{% else %}none{% endif %};">
+                                            Suspend
+                                        </button>
+                                        <button class="btn btn-success btn-sm" onclick="toggleUserStatus({{ user.id }}, 'activate')" id="activateBtn-{{ user.id }}" style="display: {% if not user.is_active %}inline-block{% else %}none{% endif %};">
+                                            Activate
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" onclick="deleteUserAccount({{ user.id }})">
+                                            Delete
+                                        </button>
+                                    {% else %}
+                                        <span class="text-muted" style="font-size: 0.8rem;">Current Account</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Model Re-training Tab -->
+    <div class="tab-content" id="modelTab">
+        <div class="glass-card no-hover">
+            <div class="panel-header mb-3">
+                <h3>Machine Learning Pipeline Model</h3>
+                <button class="btn btn-primary" id="btnRetrain" onclick="triggerModelRetrain()">
+                    <i class="fas fa-arrows-spin"></i> Trigger Pipeline Retraining
+                </button>
+            </div>
+
+            <!-- Retrain Loader overlay -->
+            <div class="retrain-loading-indicator hidden" id="retrainLoader">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p class="mt-1">Evaluating 5 algorithms (Logistic Regression, SVM, PA, Random Forest, Naive Bayes)... This may take a minute.</p>
+            </div>
+
+            <!-- Metrics display -->
+            <div class="model-metrics-display mt-2" id="metricsDisplay">
+                {% if metrics %}
+                    <div class="metrics-grid-workspace">
+                        <div class="glass-card metric-square">
+                            <span class="m-title">ACTIVE CLASSIFIER</span>
+                            <span class="m-val" style="font-size: 1.2rem; margin-top: 10px;" id="activeModel">{{ metrics.model_name }}</span>
+                        </div>
+                        <div class="glass-card metric-square">
+                            <span class="m-title">ACCURACY SCORE</span>
+                            <span class="m-val" id="modelAccuracy">{{ metrics.testing_accuracy }}%</span>
+                        </div>
+                        <div class="glass-card metric-square">
+                            <span class="m-title">F1-SCORE</span>
+                            <span class="m-val" id="modelF1">{{ metrics.f1_score }}%</span>
+                        </div>
+                        <div class="glass-card metric-square">
+                            <span class="m-title">ROC AUC INDEX</span>
+                            <span class="m-val" id="modelRoc">{{ metrics.roc_auc }}</span>
+                        </div>
+                    </div>
+
+                    <div class="comparison-list mt-3">
+                        <h4>Algorithm Comparison Scores</h4>
+                        <div class="table-responsive mt-1">
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Model Algorithm</th>
+                                        <th>Test Accuracy</th>
+                                        <th>Precision</th>
+                                        <th>Recall</th>
+                                        <th>F1 Score</th>
+                                        <th>Training Speed</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="comparisonTableBody">
+                                    {% for row in metrics.comparison %}
+                                    <tr>
+                                        <td><strong>{{ row.model_name }}</strong></td>
+                                        <td>{{ row.accuracy }}%</td>
+                                        <td>{{ row.precision }}%</td>
+                                        <td>{{ row.recall }}%</td>
+                                        <td>{{ row.f1_score }}%</td>
+                                        <td>{{ row.training_time }}s</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-brain" style="font-size: 3rem; color: var(--text-tertiary); opacity: 0.5;"></i>
+                        <h4 class="mt-2">No Active Pipeline Saved</h4>
+                        <p class="text-muted mt-1">Click the button above to run the model training comparisons.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- System logs Tab -->
+    <div class="tab-content" id="logsTab">
+        <div class="glass-card no-hover">
+            <div class="panel-header mb-3">
+                <h3>Platform Activity Logs</h3>
+                <a href="{{ url_for('main.admin_export_csv') }}" class="btn btn-secondary">
+                    <i class="fas fa-file-csv"></i> Export Database Logs CSV
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Log ID</th>
+                            <th>User ID / Profile</th>
+                            <th>Action Description</th>
+                            <th>IP Address</th>
+                            <th>User Agent</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ log.id }}</td>
+                            <td>
+                                {% if log.user %}
+                                    <strong>{{ log.user.username }}</strong> (ID: {{ log.user_id }})
+                                {% else %}
+                                    <span class="text-muted">System/Guest</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ log.action }}</td>
+                            <td>{{ log.ip_address }}</td>
+                            <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ log.user_agent }}</td>
+                            <td>{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %}

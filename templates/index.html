@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome — FakeGuard AI Landing{% endblock %}
+
+{% block content %}
+
+<!-- ─── Hero Section ───────────────────────────────────────────────────── -->
+<section class="landing-hero" data-aos="fade-up">
+    <div class="hero-text-block">
+        <span class="hero-pretitle"><i class="fas fa-sparkles"></i> Next-Gen Verification Suite</span>
+        <h1>Combating Misinformation with <span class="gradient-text">Explainable AI</span></h1>
+        <p class="hero-subtitle">
+            Enterprise-grade content analysis leveraging advanced natural language processing, 
+            word lemmatization, and sentiment pattern comparison. Secure, fast, and transparent.
+        </p>
+        <div class="hero-actions">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-arrow-right"></i> Open Workspace Dashboard
+                </a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-rocket"></i> Get Started Free
+                </a>
+                <a href="#workflow" class="btn btn-secondary btn-lg">
+                    Explore Technology
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="hero-graphic">
+        <div class="ai-orb-wrapper">
+            <svg class="ai-orb" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="30" fill="url(#orbGradient)" filter="url(#glowFilter)"/>
+                <defs>
+                    <radialGradient id="orbGradient" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="var(--primary-light)" stop-opacity="1" />
+                        <stop offset="100%" stop-color="var(--primary)" stop-opacity="0.2" />
+                    </radialGradient>
+                    <filter id="glowFilter">
+                        <feGaussianBlur stdDeviation="3" result="blur"/>
+                        <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                    </filter>
+                </defs>
+            </svg>
+            <div class="orb-scanner-line"></div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── Technology Workflow ────────────────────────────────────────────── -->
+<section class="landing-section" id="workflow">
+    <div class="section-heading text-center" data-aos="fade-up">
+        <h2>Verification Engine Pipeline</h2>
+        <p class="text-muted">How FakeGuard AI analyzes your article inputs inside the core ML cloud</p>
+    </div>
+
+    <div class="workflow-timeline" data-aos="fade-up">
+        <div class="timeline-step">
+            <div class="step-num">01</div>
+            <h3>Text Normalization</h3>
+            <p>Emojis, special punctuation, and numbers are filtered. Clean text is normalized using Unicode NFC standard.</p>
+        </div>
+        <div class="timeline-step">
+            <div class="step-num">02</div>
+            <h3>NLTK Lemmatization</h3>
+            <p>Words are mapped to their dictionary root form using WordNet Lemmatizer to consolidate lexical features.</p>
+        </div>
+        <div class="timeline-step">
+            <div class="step-num">03</div>
+            <h3>NLP Sentiment Audit</h3>
+            <p>NLTK VADER calculates sentiment polarity to capture emotional charge (subjective phrasing is flagged).</p>
+        </div>
+        <div class="timeline-step">
+            <div class="step-num">04</div>
+            <h3>Multimodel Selection</h3>
+            <p>Text is mapped via TF-IDF (1-3 n-grams) and verified against the highest performing classifier (e.g. Linear SVM).</p>
+        </div>
+    </div>
+</section>
+
+<!-- ─── Model Comparison & Dataset Statistics ──────────────────────────── -->
+<section class="landing-section bg-alt">
+    <div class="container-grid">
+        
+        <div class="info-text-block" data-aos="fade-right">
+            <h2>Supported ML Algorithms</h2>
+            <p>
+                Unlike simple tools, FakeGuard AI compares 5 industry-standard classification models to dynamically select 
+                the most accurate algorithm.
+            </p>
+            <div class="features-checklist">
+                <div class="check-item">
+                    <i class="fas fa-check"></i> <span>Linear SVM (Maximum Margin Separator)</span>
+                </div>
+                <div class="check-item">
+                    <i class="fas fa-check"></i> <span>Passive Aggressive Classifier (Streaming update)</span>
+                </div>
+                <div class="check-item">
+                    <i class="fas fa-check"></i> <span>Logistic Regression (Confidence probabilistic score)</span>
+                </div>
+                <div class="check-item">
+                    <i class="fas fa-check"></i> <span>Random Forest &amp; Multinomial Naive Bayes</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-glass-panel glass-card no-hover" data-aos="fade-left">
+            <h3>Dataset &amp; Accuracy Metrics</h3>
+            {% if metrics %}
+                <div class="metrics-summary-grid">
+                    <div class="metric-block">
+                        <span class="m-val">{{ metrics.total_articles }}</span>
+                        <span class="m-lbl">Trained Articles</span>
+                    </div>
+                    <div class="metric-block">
+                        <span class="m-val">{{ metrics.testing_accuracy }}%</span>
+                        <span class="m-lbl">Testing Accuracy</span>
+                    </div>
+                    <div class="metric-block">
+                        <span class="m-val">{{ metrics.roc_auc }}</span>
+                        <span class="m-lbl">ROC AUC Index</span>
+                    </div>
+                </div>
+                <p class="text-muted mt-2" style="font-size: 0.8rem; text-align: center;">
+                    Current Active Classifier: <strong>{{ metrics.model_name }}</strong>
+                </p>
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-triangle-exclamation" style="font-size: 2rem; color: var(--warning);"></i>
+                    <p class="mt-1">Model metrics not available. Admin must retrain the pipeline models.</p>
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</section>
+
+<!-- ─── Testimonials (Demo) ────────────────────────────────────────────── -->
+<section class="landing-section">
+    <div class="section-heading text-center" data-aos="fade-up">
+        <h2>What Analysts Are Saying</h2>
+        <p class="text-muted">Used by verification specialists and academic researchers</p>
+    </div>
+
+    <div class="container-grid cols-3" data-aos="fade-up">
+        <div class="glass-card testimonial-card no-hover">
+            <p>"The Explainable AI feature changes everything. Instead of just a classification label, we get clear lexical reasons explaining why content is suspect."</p>
+            <div class="author-block">
+                <div class="author-name">Dr. Elena Rostova</div>
+                <div class="author-title">NLP Researcher, TechInstitute</div>
+            </div>
+        </div>
+        <div class="glass-card testimonial-card no-hover">
+            <p>"FakeGuard AI has optimized our verification rate by 60%. The API capability is incredibly developer-friendly, and reports are ready to download immediately."</p>
+            <div class="author-block">
+                <div class="author-name">Marcus Vance</div>
+                <div class="author-title">Editor-in-Chief, TruthNet Press</div>
+            </div>
+        </div>
+        <div class="glass-card testimonial-card no-hover">
+            <p>"Excellent interface. Theme configurations are smooth, and the rate limiting security is highly robust. Recommended for college classrooms and enterprise audits alike."</p>
+            <div class="author-block">
+                <div class="author-name">Sarah Jenkins</div>
+                <div class="author-title">Security Auditor, CyberGuard</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── Frequently Asked Questions (FAQ) ────────────────────────────────── -->
+<section class="landing-section bg-alt" id="faq">
+    <div class="section-heading text-center" data-aos="fade-up">
+        <h2>Frequently Asked Questions</h2>
+        <p class="text-muted">Learn about the model pipeline and data processing guidelines</p>
+    </div>
+
+    <div class="faq-accordion container-sm" data-aos="fade-up">
+        <div class="faq-item">
+            <div class="faq-question">What classifiers does the training pipeline compare? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-answer">The platform trains 5 algorithms: Logistic Regression, Passive Aggressive, Linear SVM, Random Forest, and Naive Bayes. It ranks them based on F1-Score and selects the highest-scoring model.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">How does clickbait highlight parsing function? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-answer">It searches for specific clickbait phrases, emotional trigger keywords, excess capitalizations, and multiple exclamation marks, returning exact string offsets for visualization.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question">Can I retrain the models dynamically? <i class="fas fa-chevron-down"></i></div>
+            <div class="faq-answer">Yes, system administrators can access the admin dashboard control panel to trigger model retraining asynchronously.</div>
+        </div>
+    </div>
+</section>
+
+<!-- ─── Contact Form ───────────────────────────────────────────────────── -->
+<section class="landing-section">
+    <div class="container container-sm" data-aos="fade-up">
+        <div class="glass-card no-hover contact-card">
+            <h2 class="text-center mb-2">Connect With Us</h2>
+            <p class="text-center text-muted mb-4">Have questions about integrations or license agreements?</p>
+            
+            <form id="contactForm" onsubmit="event.preventDefault(); alert('Message received! Our team will contact you shortly.');">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="contactName">Full Name</label>
+                        <input type="text" id="contactName" placeholder="Your Name" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="contactEmail">Email Address</label>
+                        <input type="email" id="contactEmail" placeholder="your@email.com" required class="form-control">
+                    </div>
+                </div>
+                <div class="form-group mt-2">
+                    <label for="contactMsg">Message Detail</label>
+                    <textarea id="contactMsg" rows="4" placeholder="How can we help you?" required class="form-control"></textarea>
+                </div>
+                <div class="text-center mt-3">
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // FAQ toggles
+    document.querySelectorAll('.faq-question').forEach(q => {
+        q.addEventListener('click', () => {
+            const item = q.parentElement;
+            item.classList.toggle('open');
+        });
+    });
+</script>
+{% endblock %}

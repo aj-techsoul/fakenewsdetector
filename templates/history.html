@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}History — FakeGuard AI{% endblock %}
+
+{% block content %}
+
+<!-- ─── History Header ─────────────────────────────────────────────────── -->
+<div class="workspace-header" data-aos="fade-down">
+    <div class="header-titles">
+        <h1>Verification Logs History</h1>
+        <p class="text-muted">Browse and search through your previous article scans database</p>
+    </div>
+</div>
+
+<!-- ─── Search & Filters Panel ─────────────────────────────────────────── -->
+<div class="glass-card no-hover mt-3" data-aos="fade-up">
+    <form action="{{ url_for('main.history') }}" method="GET" class="history-filter-form">
+        <div class="search-input-container" style="flex: 2; margin-bottom: 0;">
+            <i class="fas fa-search"></i>
+            <input type="text" name="search" id="searchInput" placeholder="Search full text keywords..." value="{{ search }}">
+        </div>
+        
+        <select name="prediction" class="filter-select" aria-label="Filter by verdict">
+            <option value="all" {% if prediction_filter == 'all' %}selected{% endif %}>All Predictions</option>
+            <option value="real" {% if prediction_filter == 'real' %}selected{% endif %}>Real Verdicts Only</option>
+            <option value="fake" {% if prediction_filter == 'fake' %}selected{% endif %}>Fake Verdicts Only</option>
+        </select>
+        
+        <select name="sort" class="filter-select" aria-label="Sort by options">
+            <option value="date_desc" {% if sort_by == 'date_desc' %}selected{% endif %}>Newest First</option>
+            <option value="date_asc" {% if sort_by == 'date_asc' %}selected{% endif %}>Oldest First</option>
+            <option value="confidence_desc" {% if sort_by == 'confidence_desc' %}selected{% endif %}>Highest Confidence</option>
+            <option value="confidence_asc" {% if sort_by == 'confidence_asc' %}selected{% endif %}>Lowest Confidence</option>
+        </select>
+        
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-filter"></i> Apply Filters
+        </button>
+    </form>
+</div>
+
+<!-- ─── Predictions List ───────────────────────────────────────────────── -->
+<div class="history-list mt-3" data-aos="fade-up">
+    {% if predictions %}
+        {% for p in predictions %}
+        <div class="glass-card history-item no-hover" onclick="window.location.href='{{ url_for('main.result', pred_id=p.id) }}'" style="cursor: pointer;">
+            <span class="history-prediction-badge {% if p.prediction == 'REAL' %}real{% else %}fake{% endif %}">
+                {{ p.prediction }}
+            </span>
+            <div class="history-details">
+                <div class="history-preview">{{ p.text_preview }}...</div>
+                <div class="history-meta">
+                    <span><i class="fas fa-percentage"></i> Confidence: {{ p.confidence }}%</span>
+                    <span><i class="fas fa-triangle-exclamation"></i> Risk: {{ p.risk_category }}</span>
+                    <span><i class="fas fa-clock"></i> {{ p.created_at }}</span>
+                </div>
+            </div>
+            <div class="history-actions" onclick="event.stopPropagation();">
+                <a href="{{ url_for('main.api_report', pred_id=p.id) }}" class="btn btn-icon btn-secondary" title="Download PDF Report">
+                    <i class="fas fa-file-pdf"></i>
+                </a>
+                <a href="{{ url_for('main.result', pred_id=p.id) }}" class="btn btn-icon btn-secondary" title="View Full Analysis">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="glass-card no-hover text-center py-5">
+            <i class="fas fa-folder-open" style="font-size: 3rem; color: var(--text-tertiary); opacity: 0.5;"></i>
+            <h3 class="mt-2">No Verification Logs Match</h3>
+            <p class="text-muted mt-1">Try resetting the filters or execute a new verification scan.</p>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

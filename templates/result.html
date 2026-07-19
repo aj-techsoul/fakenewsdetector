@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %}Scan Report #{{ data.id }} — FakeGuard AI{% endblock %}
+
+{% block content %}
+
+<!-- ─── Result Report Header ───────────────────────────────────────────── -->
+<div class="workspace-header" data-aos="fade-down">
+    <div class="header-titles">
+        <h1>Analysis Verification Report</h1>
+        <p class="text-muted">Detailed NLP validation breakdown for Prediction ID: #{{ data.id }}</p>
+    </div>
+</div>
+
+<!-- ─── Report Layout Grid ─────────────────────────────────────────────── -->
+<div class="workspace-grid mt-3">
+    
+    <!-- Left Column: Highlighted text viewer -->
+    <div class="input-pane" data-aos="fade-right">
+        <div class="glass-card no-hover workspace-card">
+            <h3>Linguistic Highlight Viewer</h3>
+            <p class="text-muted mb-2">Original text colored by suspicious keyword markers:</p>
+            
+            <div class="article-highlight-viewer font-sm" id="resultTextViewer" style="min-height: 250px;">
+                <!-- Highlighted text gets injected here -->
+            </div>
+            
+            <!-- Legend indicators -->
+            <div class="highlight-legend mt-2">
+                <span class="legend-item"><span class="marker caps"></span> Caps Words</span>
+                <span class="legend-item"><span class="marker clickbait"></span> Clickbait</span>
+                <span class="legend-item"><span class="marker sensational"></span> Sensational</span>
+                <span class="legend-item"><span class="marker emotional"></span> Emotional</span>
+                <span class="legend-item"><span class="marker punctuation"></span> Double Punc</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Verification Results Details -->
+    <div class="output-pane" data-aos="fade-left">
+        
+        <!-- Verdict Card -->
+        <div class="glass-card no-hover verdict-card">
+            <div class="verdict-header">
+                <span class="verdict-badge {% if data.prediction == 'REAL' %}real{% else %}fake{% endif %}">
+                    {{ data.prediction }} NEWS
+                </span>
+                <div class="verdict-scores">
+                    <span class="score-num">{{ data.ai_score }}/10</span>
+                    <span class="score-lbl">AI Quality</span>
+                </div>
+            </div>
+            <p class="text-muted mt-2">
+                Analysis finished on {{ data.created_at }}.
+            </p>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="metrics-grid-workspace mt-2">
+            <div class="glass-card metric-square">
+                <span class="m-title">CONFIDENCE</span>
+                <span class="m-val">{{ data.confidence }}%</span>
+            </div>
+            <div class="glass-card metric-square">
+                <span class="m-title">RISK CATEGORY</span>
+                <span class="m-val">{{ data.risk_category }}</span>
+            </div>
+            <div class="glass-card metric-square">
+                <span class="m-title">RELIABILITY</span>
+                <span class="m-val">{{ data.reliability }}</span>
+            </div>
+            <div class="glass-card metric-square">
+                <span class="m-title">SPEED INDEX</span>
+                <span class="m-val">{{ data.prediction_time }}s</span>
+            </div>
+        </div>
+
+        <!-- AI Explainable Panel -->
+        <div class="glass-card no-hover xai-panel mt-2">
+            <h4><i class="fas fa-robot"></i> Explainable AI Reasons</h4>
+            <div class="xai-reasons mt-1">
+                {% for line in data.explanation.split('\n') %}
+                    {% if line.strip() %}
+                        <p>{{ line.replace('**', '') }}</p>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Key Terms Tags -->
+        <div class="glass-card no-hover tags-panel mt-2">
+            <h4><i class="fas fa-tags"></i> Lexical Keyword Lists</h4>
+            
+            <div class="tag-group mt-2">
+                <span class="group-label">Credible Terms</span>
+                <div class="tag-list">
+                    {% for w in data.keywords.positive %}
+                        <span class="tag positive">{{ w }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="tag-group mt-1">
+                <span class="group-label">Sensational Terms</span>
+                <div class="tag-list">
+                    {% for w in data.keywords.negative %}
+                        <span class="tag negative">{{ w }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Probability Chart -->
+        <div class="glass-card no-hover chart-panel mt-2">
+            <h4><i class="fas fa-chart-pie"></i> Probability Breakdown</h4>
+            <div class="chart-canvas-wrapper mt-1">
+                <canvas id="resultProbChart"></canvas>
+            </div>
+        </div>
+
+        <!-- NLP Stats Grid -->
+        <div class="glass-card no-hover stats-panel mt-2">
+            <h4><i class="fas fa-chart-column"></i> NLP Linguistic Indices</h4>
+            <div class="stats-mini-grid mt-1">
+                <div class="stat-bubble">
+                    <span class="val">{{ data.stats.word_count }}</span>
+                    <span class="lbl">Word Count</span>
+                </div>
+                <div class="stat-bubble">
+                    <span class="val">{{ data.stats.readability_score }}</span>
+                    <span class="lbl">Readability index</span>
+                </div>
+                <div class="stat-bubble">
+                    <span class="val">{{ data.stats.spam_score }}/100</span>
+                    <span class="lbl">Content Spam</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Download Actions -->
+        <div class="result-actions-workspace mt-3">
+            <a href="{{ url_for('main.api_report', pred_id=data.id) }}" class="btn btn-primary">
+                <i class="fas fa-file-pdf"></i> Download PDF Report
+            </a>
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-plus"></i> New Scan Verification
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Injected parameters
+    const RESULT_TEXT = {{ data.full_text | tojson }};
+    const RESULT_HIGHLIGHTS = {{ data.keywords_json | tojson if data.keywords_json else '[]' }};
+    // Wait, let's load prediction details
+    const PROB_REAL = {{ data.real_prob }};
+    const PROB_FAKE = {{ data.fake_prob }};
+    
+    // Parse highlights list
+    let parsedHighlights = [];
+    try {
+        // Look up highlight locations in database prediction details
+        {% if data.stats_json %}
+            // Wait, we have full highlights in predictor: highlights are returned from api,
+            // we can re-evaluate client side highlights to render them instantly!
+        {% endif %}
+    } catch(e) {}
+</script>
+<script src="{{ url_for('static', filename='js/result.js') }}"></script>
+{% endblock %}

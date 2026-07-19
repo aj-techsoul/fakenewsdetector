@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}Workspace — FakeGuard AI{% endblock %}
+
+{% block content %}
+
+<!-- ─── Workspace Header ──────────────────────────────────────────────── -->
+<div class="workspace-header" data-aos="fade-down">
+    <div class="header-titles">
+        <h1>NLP Verification Workspace</h1>
+        <p class="text-muted">Paste your news article text below for advanced explainable AI verification</p>
+    </div>
+</div>
+
+<!-- ─── Workspace Main Layout ─────────────────────────────────────────── -->
+<div class="workspace-grid">
+    
+    <!-- Input Section -->
+    <div class="input-pane" data-aos="fade-right">
+        <div class="glass-card no-hover workspace-card">
+            <div class="editor-header">
+                <h3><i class="fas fa-file-pen"></i> News Content</h3>
+                <div class="editor-actions">
+                    <button class="btn btn-secondary btn-sm" id="btnPaste" title="Paste clipboard text"><i class="fas fa-paste"></i> Paste</button>
+                    <button class="btn btn-secondary btn-sm" id="btnClear" title="Clear text"><i class="fas fa-eraser"></i> Clear</button>
+                    <button class="btn btn-secondary btn-sm" id="btnSampleReal"><i class="fas fa-circle-check"></i> Sample Real</button>
+                    <button class="btn btn-secondary btn-sm" id="btnSampleFake"><i class="fas fa-circle-exclamation"></i> Sample Fake</button>
+                </div>
+            </div>
+
+            <!-- Editor Wrapper -->
+            <div class="editor-container mt-2">
+                <textarea id="articleEditor" placeholder="Paste full article contents here (minimum 30 characters)..."></textarea>
+                <!-- Viewer overlay for rendering highlights -->
+                <div id="articleViewer" class="article-highlight-viewer hidden"></div>
+            </div>
+
+            <div class="editor-footer mt-2">
+                <div class="live-counters">
+                    <span><i class="fas fa-text-width"></i> <span id="charCount">0</span> Chars</span>
+                    <span><i class="fas fa-font"></i> <span id="wordCount">0</span> Words</span>
+                </div>
+                <button class="btn btn-primary" id="btnVerify">
+                    <i class="fas fa-wand-magic-sparkles"></i> Execute Verification
+                </button>
+            </div>
+            
+            <div class="error-banner hidden" id="errorBanner"></div>
+        </div>
+    </div>
+
+    <!-- Output Section (Skeleton / Results) ──────────────────────────────── -->
+    <div class="output-pane" data-aos="fade-left">
+        
+        <!-- Skeleton Loader -->
+        <div class="glass-card no-hover workspace-card skeleton-card hidden" id="skeletonLoader">
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-badge"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-text"></div>
+            <div class="skeleton skeleton-chart"></div>
+        </div>
+
+        <!-- Initial Placeholder Card -->
+        <div class="glass-card no-hover workspace-card text-center" id="outputPlaceholder">
+            <i class="fas fa-shield-halved placeholder-icon" style="font-size: 3.5rem; color: var(--primary-light); opacity: 0.5;"></i>
+            <h3 class="mt-2">Verification Queue Empty</h3>
+            <p class="text-muted mt-1" style="max-width: 280px; margin-left: auto; margin-right: auto;">
+                Paste a news article and click "Execute Verification" to trigger NLP analytics.
+            </p>
+        </div>
+
+        <!-- Result Card Details -->
+        <div class="result-details-wrapper hidden" id="resultDetails">
+            
+            <!-- Verdict Badge Card -->
+            <div class="glass-card no-hover verdict-card">
+                <div class="verdict-header">
+                    <span class="verdict-badge" id="verdictBadge">REAL NEWS</span>
+                    <div class="verdict-scores">
+                        <span class="score-num" id="aiScore">9.8/10</span>
+                        <span class="score-lbl">AI Quality</span>
+                    </div>
+                </div>
+                <p class="text-muted mt-2" id="verdictSubtitle">Neutral sentiment and valid citations found.</p>
+            </div>
+
+            <!-- Metrics grid -->
+            <div class="metrics-grid-workspace mt-2">
+                <div class="glass-card metric-square">
+                    <span class="m-title">CONFIDENCE</span>
+                    <span class="m-val" id="confidenceVal">98%</span>
+                </div>
+                <div class="glass-card metric-square">
+                    <span class="m-title">RISK CATEGORY</span>
+                    <span class="m-val" id="riskVal">Very Low</span>
+                </div>
+                <div class="glass-card metric-square">
+                    <span class="m-title">RELIABILITY</span>
+                    <span class="m-val" id="reliabilityVal">Very High</span>
+                </div>
+                <div class="glass-card metric-square">
+                    <span class="m-title">SPEED</span>
+                    <span class="m-val" id="speedVal">0.03s</span>
+                </div>
+            </div>
+
+            <!-- Explainable AI Panel -->
+            <div class="glass-card no-hover xai-panel mt-2">
+                <h4><i class="fas fa-robot"></i> Explainable AI Breakdown</h4>
+                <div class="xai-reasons mt-1" id="xaiReasons">
+                    <!-- Reasons -->
+                </div>
+            </div>
+
+            <!-- Key Terms Tags -->
+            <div class="glass-card no-hover tags-panel mt-2">
+                <h4><i class="fas fa-tags"></i> Key Term Audits</h4>
+                
+                <div class="tag-group mt-2">
+                    <span class="group-label">Credible Indicators</span>
+                    <div class="tag-list" id="posTags"></div>
+                </div>
+                
+                <div class="tag-group mt-1">
+                    <span class="group-label">Sensational/Clickbait Phrases</span>
+                    <div class="tag-list" id="negTags"></div>
+                </div>
+            </div>
+
+            <!-- Chart.js Analysis -->
+            <div class="glass-card no-hover chart-panel mt-2">
+                <h4><i class="fas fa-chart-pie"></i> Probability Breakdown</h4>
+                <div class="chart-canvas-wrapper mt-1">
+                    <canvas id="probDoughnutChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Text Statistics -->
+            <div class="glass-card no-hover stats-panel mt-2">
+                <h4><i class="fas fa-chart-column"></i> Text Statistics</h4>
+                <div class="stats-mini-grid mt-1">
+                    <div class="stat-bubble">
+                        <span class="val" id="statSentences">0</span>
+                        <span class="lbl">Sentences</span>
+                    </div>
+                    <div class="stat-bubble">
+                        <span class="val" id="statReadability">0</span>
+                        <span class="lbl">Readability Index</span>
+                    </div>
+                    <div class="stat-bubble">
+                        <span class="val" id="statSpam">0</span>
+                        <span class="lbl">Spam Index (/100)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="result-actions-workspace mt-3">
+                <a href="#" class="btn btn-primary" id="btnDownloadPdf" target="_blank">
+                    <i class="fas fa-file-pdf"></i> Download PDF Report
+                </a>
+                <button class="btn btn-secondary" id="btnEditAgain">
+                    <i class="fas fa-edit"></i> Edit Text
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const SAMPLE_REAL_DATA = {{ sample_real | tojson }};
+    const SAMPLE_FAKE_DATA = {{ sample_fake | tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/workspace.js') }}"></script>
+{% endblock %}

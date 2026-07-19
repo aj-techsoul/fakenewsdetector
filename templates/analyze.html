@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Analyze News{% endblock %}
+
+{% block content %}
+
+<!-- ─── Page Header ────────────────────────────────────────────────────── -->
+<div class="page-header">
+    <h1><i class="fas fa-magnifying-glass-chart"></i> Analyze News Article</h1>
+    <p>Paste your news article below and let AI determine its authenticity</p>
+</div>
+
+<!-- ─── Analyze Section ────────────────────────────────────────────────── -->
+<section class="analyze-section">
+    <div class="container container-sm">
+
+        <!-- Text Editor Card -->
+        <div class="glass-card no-hover text-editor-card" data-aos="fade-up">
+            <textarea
+                id="newsInput"
+                placeholder="Paste your news article here for AI analysis...&#10;&#10;The text should be at least a few sentences long for accurate detection. You can paste any news article from any source."
+                rows="12"
+            ></textarea>
+
+            <div class="editor-toolbar">
+                <div class="editor-counters">
+                    <span><i class="fas fa-text-width"></i> <span id="charCount">0</span> characters</span>
+                    <span><i class="fas fa-font"></i> <span id="wordCount">0</span> words</span>
+                </div>
+                <div class="editor-actions">
+                    <button class="btn btn-secondary btn-sm" id="btnClear" title="Clear text">
+                        <i class="fas fa-eraser"></i> Clear
+                    </button>
+                    <button class="btn btn-secondary btn-sm" id="btnPaste" title="Paste from clipboard">
+                        <i class="fas fa-paste"></i> Paste
+                    </button>
+                    <button class="btn btn-secondary btn-sm" id="btnSampleReal" title="Load sample real news">
+                        <i class="fas fa-newspaper"></i> Sample Real
+                    </button>
+                    <button class="btn btn-secondary btn-sm" id="btnSampleFake" title="Load sample fake news">
+                        <i class="fas fa-triangle-exclamation"></i> Sample Fake
+                    </button>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div class="error-message" id="errorMessage">
+                <i class="fas fa-circle-exclamation"></i>
+                <span id="errorText"></span>
+            </div>
+        </div>
+
+        <!-- Analyze Button -->
+        <div class="analyze-btn-container" data-aos="fade-up" data-aos-delay="100">
+            <button class="btn btn-primary analyze-btn" id="btnAnalyze">
+                <i class="fas fa-wand-magic-sparkles"></i>
+                Analyze with AI
+            </button>
+        </div>
+
+    </div>
+</section>
+
+<!-- ─── Loading Overlay ────────────────────────────────────────────────── -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <h2 style="color: white; margin-bottom: 8px;">Analyzing Article</h2>
+        <p style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">Please wait while our AI processes your text</p>
+        <div class="loading-steps">
+            <div class="loading-step" id="step1">
+                <i class="fas fa-circle-notch fa-spin"></i>
+                <span>Scanning news article...</span>
+            </div>
+            <div class="loading-step" id="step2">
+                <i class="fas fa-circle-notch fa-spin"></i>
+                <span>Extracting features...</span>
+            </div>
+            <div class="loading-step" id="step3">
+                <i class="fas fa-circle-notch fa-spin"></i>
+                <span>Running AI model...</span>
+            </div>
+            <div class="loading-step" id="step4">
+                <i class="fas fa-circle-notch fa-spin"></i>
+                <span>Generating report...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // ─── Sample News Data ────────────────────────────────────────────
+    const SAMPLE_REAL = {{ sample_real | tojson }};
+    const SAMPLE_FAKE = {{ sample_fake | tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/analyze.js') }}"></script>
+{% endblock %}

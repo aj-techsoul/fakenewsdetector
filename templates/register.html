@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account — FakeGuard AI{% endblock %}
+
+{% block content %}
+
+<div class="auth-wrapper" data-aos="zoom-in">
+    <div class="glass-card no-hover auth-card">
+        <div class="auth-header">
+            <i class="fas fa-user-plus auth-icon"></i>
+            <h2>Register Platform Profile</h2>
+            <p class="text-muted">Fill out the fields to gain access to NLP analytics features</p>
+        </div>
+
+        <form action="{{ url_for('auth.register') }}" method="POST" class="auth-form mt-3" id="registerForm">
+            
+            <div class="form-group">
+                <label for="full_name">Full Name</label>
+                <div class="input-icon-wrapper">
+                    <i class="fas fa-signature input-icon-inner"></i>
+                    <input type="text" name="full_name" id="full_name" placeholder="John Doe" required class="form-control-icon">
+                </div>
+            </div>
+
+            <div class="form-group mt-2">
+                <label for="username">Username</label>
+                <div class="input-icon-wrapper">
+                    <i class="fas fa-at input-icon-inner"></i>
+                    <input type="text" name="username" id="username" placeholder="johndoe" required class="form-control-icon">
+                </div>
+            </div>
+
+            <div class="form-group mt-2">
+                <label for="email">Email Address</label>
+                <div class="input-icon-wrapper">
+                    <i class="fas fa-envelope input-icon-inner"></i>
+                    <input type="email" name="email" id="email" placeholder="john@company.com" required class="form-control-icon">
+                </div>
+            </div>
+
+            <div class="form-group mt-2">
+                <label for="password">Password</label>
+                <div class="input-icon-wrapper">
+                    <i class="fas fa-lock input-icon-inner"></i>
+                    <input type="password" name="password" id="password" placeholder="••••••••" required class="form-control-icon">
+                </div>
+                
+                <!-- Password Strength Meter -->
+                <div class="strength-meter-container mt-1">
+                    <div class="strength-meter-bar" id="strengthBar"></div>
+                    <span class="strength-meter-text" id="strengthText">Password Strength: None</span>
+                </div>
+            </div>
+
+            <div class="form-group mt-2">
+                <label for="confirm_password">Confirm Password</label>
+                <div class="input-icon-wrapper">
+                    <i class="fas fa-lock-open input-icon-inner"></i>
+                    <input type="password" name="confirm_password" id="confirm_password" placeholder="••••••••" required class="form-control-icon">
+                </div>
+            </div>
+
+            <div class="form-options mt-3">
+                <label class="checkbox-container">
+                    <input type="checkbox" name="terms" id="terms" required>
+                    <span class="checkmark"></span>
+                    I accept the <a href="#" onclick="alert('Demo T&C: You agree to use these models for verification purposes.');">Terms and Conditions</a>
+                </label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block mt-3" id="submitBtn">
+                <i class="fas fa-circle-check"></i> Register Account
+            </button>
+        </form>
+
+        <div class="auth-footer mt-4">
+            <p>Already have an account? <a href="{{ url_for('auth.login') }}">Access Login</a></p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

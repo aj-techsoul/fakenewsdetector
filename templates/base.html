@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ current_user.theme_preference if current_user.is_authenticated else 'midnight-blue' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FakeGuard AI — Enterprise Fake News Detection Platform using natural language processing and lemmatization features.">
+    <title>{% block title %}FakeGuard AI{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+
+    <!-- ─── Core Application Layout ──────────────────────────────────────── -->
+    <div class="app-layout">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="app-sidebar" id="appSidebar">
+            <div class="sidebar-brand">
+                <i class="fas fa-shield-halved brand-icon"></i>
+                <span class="brand-text">FakeGuard <span class="accent-span">AI</span></span>
+            </div>
+
+            <nav class="sidebar-menu">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('main.dashboard') }}" class="menu-item {% if request.endpoint == 'main.dashboard' %}active{% endif %}">
+                        <i class="fas fa-compass"></i> Workspace
+                    </a>
+                    <a href="{{ url_for('main.history') }}" class="menu-item {% if request.endpoint == 'main.history' %}active{% endif %}">
+                        <i class="fas fa-clock-rotate-left"></i> Verification History
+                    </a>
+                    <a href="{{ url_for('main.profile') }}" class="menu-item {% if request.endpoint == 'main.profile' %}active{% endif %}">
+                        <i class="fas fa-user-gear"></i> Account Profile
+                    </a>
+                    <a href="{{ url_for('main.settings_page') }}" class="menu-item {% if request.endpoint == 'main.settings_page' %}active{% endif %}">
+                        <i class="fas fa-sliders"></i> Theme &amp; System
+                    </a>
+                    
+                    {% if current_user.role == 'admin' %}
+                        <div class="menu-divider">System Controls</div>
+                        <a href="{{ url_for('main.admin') }}" class="menu-item {% if request.endpoint == 'main.admin' %}active{% endif %}">
+                            <i class="fas fa-screwdriver-wrench"></i> Admin Dashboard
+                        </a>
+                    {% endif %}
+                    
+                    <div class="menu-footer">
+                        <div class="user-block">
+                            {% if current_user.profile_pic %}
+                                <img src="/uploads/{{ current_user.profile_pic }}" alt="Avatar" class="avatar-img">
+                            {% else %}
+                                <div class="avatar-placeholder">{{ current_user.username[:2].upper() }}</div>
+                            {% endif %}
+                            <div class="user-meta">
+                                <span class="user-name">{{ current_user.full_name }}</span>
+                                <span class="user-role">{{ current_user.role.upper() }}</span>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('auth.logout') }}" class="menu-item logout-btn">
+                            <i class="fas fa-right-from-bracket"></i> Sign Out
+                        </a>
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('main.index') }}" class="menu-item {% if request.endpoint == 'main.index' %}active{% endif %}">
+                        <i class="fas fa-house"></i> Home Landing
+                    </a>
+                    <a href="{{ url_for('auth.login') }}" class="menu-item {% if request.endpoint == 'auth.login' %}active{% endif %}">
+                        <i class="fas fa-arrow-right-to-bracket"></i> Access Login
+                    </a>
+                    <a href="{{ url_for('auth.register') }}" class="menu-item {% if request.endpoint == 'auth.register' %}active{% endif %}">
+                        <i class="fas fa-user-plus"></i> Sign Up
+                    </a>
+                {% endif %}
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="app-main-wrapper">
+            
+            <!-- Navbar Header -->
+            <header class="app-header">
+                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <div class="header-right">
+                    <!-- Notification Bell -->
+                    {% if current_user.is_authenticated %}
+                        <div class="header-notif-bell" id="notifBellDropdown">
+                            <i class="fas fa-bell"></i>
+                            <span class="bell-badge hidden" id="bellBadge">0</span>
+                            <div class="notif-dropdown-list hidden" id="notifDropdown">
+                                <div class="dropdown-header">
+                                    <span>Notifications</span>
+                                    <button class="clear-notif-btn" id="clearNotifBtn">Mark all read</button>
+                                </div>
+                                <div class="dropdown-body" id="notifList">
+                                    <!-- Dynamic notifications -->
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Theme Fast Swapper -->
+                    <div class="theme-select-wrapper">
+                        <i class="fas fa-palette"></i>
+                        <select id="themeSelector" aria-label="Theme selector">
+                            <option value="midnight-blue">Midnight Blue (Dark)</option>
+                            <option value="emerald-green">Emerald Green</option>
+                            <option value="royal-purple">Royal Purple</option>
+                            <option value="sunset-orange">Sunset Orange</option>
+                            <option value="crimson-red">Crimson Red</option>
+                        </select>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Specific Container -->
+            <div class="page-container">
+                
+                <!-- Flash messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="flash-messages-container">
+                            {% for category, msg in messages %}
+                                <div class="alert alert-{{ category }}">
+                                    <i class="fas {% if category == 'success' %}fa-check-circle{% elif category == 'danger' %}fa-circle-exclamation{% else %}fa-circle-info{% endif %}"></i>
+                                    <span>{{ msg }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </div>
+
+            <!-- Dashboard Footer -->
+            <footer class="app-footer">
+                <p>&copy; 2026 FakeGuard AI Corp. All rights reserved. Professional Verification Framework v2.1</p>
+            </footer>
+        </div>
+
+    </div>
+
+    <!-- Toast alerts overlay -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Javascript framework libraries -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='themes/theme-engine.js') }}"></script>
+    {% block scripts %}{% endblock %}
+
+</body>
+</html>

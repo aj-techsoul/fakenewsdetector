@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}System Settings — FakeGuard AI{% endblock %}
+
+{% block content %}
+
+<div class="workspace-header" data-aos="fade-down">
+    <div class="header-titles">
+        <h1>System Settings</h1>
+        <p class="text-muted">Configure color theme profiles, license configurations, and workspace settings</p>
+    </div>
+</div>
+
+<div class="workspace-grid mt-3">
+    
+    <!-- Theme Palette Selector -->
+    <div class="input-pane" data-aos="fade-right">
+        <div class="glass-card no-hover workspace-card">
+            <h3>Color Theme Profiles</h3>
+            <p class="text-muted mb-3">Select your desired visual style. The theme will apply immediately and save to your account profile.</p>
+
+            <div class="theme-palette-grid">
+                
+                <div class="theme-option-card" onclick="setThemePreference('midnight-blue')">
+                    <div class="color-preview" style="background: linear-gradient(135deg, #0c0c1d, #1a1a3e);">
+                        <span style="color: #6c5ce7; font-weight: bold;">AI</span>
+                    </div>
+                    <div class="theme-info mt-1">
+                        <strong>Midnight Blue (Dark)</strong>
+                        <span class="text-muted font-sm">Default tech theme</span>
+                    </div>
+                </div>
+
+                <div class="theme-option-card" onclick="setThemePreference('emerald-green')">
+                    <div class="color-preview" style="background: linear-gradient(135deg, #10ac84, #00b894);">
+                        <span style="color: #ffffff; font-weight: bold;">MINT</span>
+                    </div>
+                    <div class="theme-info mt-1">
+                        <strong>Emerald Green</strong>
+                        <span class="text-muted font-sm">Clean and modern look</span>
+                    </div>
+                </div>
+
+                <div class="theme-option-card" onclick="setThemePreference('royal-purple')">
+                    <div class="color-preview" style="background: linear-gradient(135deg, #5f27cd, #341f97);">
+                        <span style="color: #ffffff; font-weight: bold;">ROYAL</span>
+                    </div>
+                    <div class="theme-info mt-1">
+                        <strong>Royal Purple</strong>
+                        <span class="text-muted font-sm">Elegant dashboard look</span>
+                    </div>
+                </div>
+
+                <div class="theme-option-card" onclick="setThemePreference('sunset-orange')">
+                    <div class="color-preview" style="background: linear-gradient(135deg, #ff9f43, #ee5253);">
+                        <span style="color: #ffffff; font-weight: bold;">WARM</span>
+                    </div>
+                    <div class="theme-info mt-1">
+                        <strong>Sunset Orange</strong>
+                        <span class="text-muted font-sm">Warm and amber palette</span>
+                    </div>
+                </div>
+
+                <div class="theme-option-card" onclick="setThemePreference('crimson-red')">
+                    <div class="color-preview" style="background: linear-gradient(135deg, #ee5253, #d63031);">
+                        <span style="color: #ffffff; font-weight: bold;">RED</span>
+                    </div>
+                    <div class="theme-info mt-1">
+                        <strong>Crimson Red</strong>
+                        <span class="text-muted font-sm">Premium corporate look</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- License & Backup Config -->
+    <div class="output-pane" data-aos="fade-left">
+        <div class="glass-card no-hover workspace-card">
+            <h3>Enterprise License Info</h3>
+            
+            <div class="license-info-block mt-2">
+                <div class="license-row">
+                    <span class="lbl text-muted">License Class:</span>
+                    <span class="val"><strong>Enterprise Unlimited Trial</strong></span>
+                </div>
+                <div class="license-row">
+                    <span class="lbl text-muted">Node Status:</span>
+                    <span class="val text-success"><strong>ACTIVE</strong></span>
+                </div>
+                <div class="license-row">
+                    <span class="lbl text-muted">Registered to:</span>
+                    <span class="val">Academic Evaluator / University Demo</span>
+                </div>
+                <div class="license-row">
+                    <span class="lbl text-muted">Support Plan:</span>
+                    <span class="val">24/7 Developer Sandbox Channel</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card no-hover workspace-card mt-3">
+            <h3>Database Backups</h3>
+            <p class="text-muted mb-2">Create safety snapshots of SQLite tables and prediction history logs.</p>
+            <button class="btn btn-secondary btn-block" onclick="alert('Backup snapshot saved to d:\\fakenews_detection\\backups\\');">
+                <i class="fas fa-floppy-disk"></i> Create Database Backup
+            </button>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function setThemePreference(themeName) {
+        // Selector sync
+        const selector = document.getElementById('themeSelector');
+        if (selector) {
+            selector.value = themeName;
+            // Trigger selector event change
+            selector.dispatchEvent(new Event('change'));
+        }
+    }
+</script>
+{% endblock %}

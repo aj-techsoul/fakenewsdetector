@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block title %}Dataset Information{% endblock %}
+
+{% block content %}
+
+<!-- ─── Page Header ────────────────────────────────────────────────────── -->
+<div class="page-header">
+    <h1><i class="fas fa-database"></i> Dataset & Model Information</h1>
+    <p>Details about the training dataset and model performance</p>
+</div>
+
+<!-- ─── Info Section ───────────────────────────────────────────────────── -->
+<section class="info-section">
+    <div class="container">
+
+        {% if metrics %}
+
+        <!-- Dataset Overview -->
+        <div class="section-header" data-aos="fade-up">
+            <div class="section-badge"><i class="fas fa-table"></i> Dataset</div>
+            <h2>{{ metrics.dataset_name or 'ISOT Fake and Real News Dataset' }}</h2>
+        </div>
+
+        <div class="info-grid" data-aos="fade-up">
+            <div class="glass-card info-card">
+                <div class="info-card-icon"><i class="fas fa-file-lines"></i></div>
+                <div class="info-card-value" data-count="{{ metrics.total_articles }}">0</div>
+                <div class="info-card-label">Total Articles</div>
+            </div>
+            <div class="glass-card info-card">
+                <div class="info-card-icon" style="background: var(--success-bg); color: var(--success);"><i class="fas fa-check-circle"></i></div>
+                <div class="info-card-value" data-count="{{ metrics.real_count }}">0</div>
+                <div class="info-card-label">Real News Articles</div>
+            </div>
+            <div class="glass-card info-card">
+                <div class="info-card-icon" style="background: var(--danger-bg); color: var(--danger);"><i class="fas fa-times-circle"></i></div>
+                <div class="info-card-value" data-count="{{ metrics.fake_count }}">0</div>
+                <div class="info-card-label">Fake News Articles</div>
+            </div>
+            <div class="glass-card info-card">
+                <div class="info-card-icon"><i class="fas fa-flask"></i></div>
+                <div class="info-card-value" data-count="{{ metrics.vocabulary_size }}">0</div>
+                <div class="info-card-label">Vocabulary Size</div>
+            </div>
+        </div>
+
+        <!-- Model Performance -->
+        <div class="section-header mt-4" data-aos="fade-up">
+            <div class="section-badge"><i class="fas fa-chart-line"></i> Performance</div>
+            <h2>Model Metrics</h2>
+        </div>
+
+        <div class="info-grid" data-aos="fade-up">
+            <div class="glass-card info-card">
+                <div class="info-card-icon" style="background: var(--success-bg); color: var(--success);"><i class="fas fa-bullseye"></i></div>
+                <div class="info-card-value">{{ metrics.training_accuracy }}%</div>
+                <div class="info-card-label">Training Accuracy</div>
+            </div>
+            <div class="glass-card info-card">
+                <div class="info-card-icon" style="background: rgba(116,185,255,0.1); color: var(--info);"><i class="fas fa-target"></i></div>
+                <div class="info-card-value">{{ metrics.testing_accuracy }}%</div>
+                <div class="info-card-label">Testing Accuracy</div>
+            </div>
+            <div class="glass-card info-card">
+                <div class="info-card-icon"><i class="fas fa-crosshairs"></i></div>
+                <div class="info-card-value">{{ metrics.precision }}%</div>
+                <div class="info-card-label">Precision</div>
+            </div>
+            <div class="glass-card info-card">
+                <div class="info-card-icon" style="background: rgba(253,203,110,0.1); color: #f39c12;"><i class="fas fa-arrows-to-dot"></i></div>
+                <div class="info-card-value">{{ metrics.recall }}%</div>
+                <div class="info-card-label">Recall</div>
+            </div>
+            <div class="glass-card info-card">
+                <div class="info-card-icon"><i class="fas fa-scale-balanced"></i></div>
+                <div class="info-card-value">{{ metrics.f1_score }}%</div>
+                <div class="info-card-label">F1 Score</div>
+            </div>
+            <div class="glass-card info-card">
+                <div class="info-card-icon" style="background: var(--success-bg); color: var(--success);"><i class="fas fa-chart-area"></i></div>
+                <div class="info-card-value">{{ metrics.roc_auc }}</div>
+                <div class="info-card-label">ROC AUC</div>
+            </div>
+        </div>
+
+        <!-- Confusion Matrix & ROC Curve -->
+        <div class="charts-grid mt-4" data-aos="fade-up">
+            <div class="glass-card chart-card no-hover">
+                <h3><i class="fas fa-table-cells"></i> Confusion Matrix</h3>
+                {% if metrics.confusion_matrix %}
+                <div class="confusion-matrix">
+                    <div class="cm-header"></div>
+                    <div class="cm-header">Predicted Fake</div>
+                    <div class="cm-header">Predicted Real</div>
+                    <div class="cm-header">Actual Fake</div>
+                    <div class="cm-cell cm-value-tn">{{ metrics.confusion_matrix[0][0] }}</div>
+                    <div class="cm-cell cm-value-fp">{{ metrics.confusion_matrix[0][1] }}</div>
+                    <div class="cm-header">Actual Real</div>
+                    <div class="cm-cell cm-value-fn">{{ metrics.confusion_matrix[1][0] }}</div>
+                    <div class="cm-cell cm-value-tp">{{ metrics.confusion_matrix[1][1] }}</div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="glass-card chart-card no-hover">
+                <h3><i class="fas fa-chart-area"></i> ROC Curve</h3>
+                <canvas id="rocChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Training Details -->
+        <div class="glass-card no-hover mt-4" data-aos="fade-up" style="padding: 32px;">
+            <h3 style="margin-bottom: 20px; font-size: 1.1rem;">
+                <i class="fas fa-cogs" style="color: var(--primary);"></i> Training Details
+            </h3>
+            <div class="info-grid" style="margin-bottom: 0;">
+                <div class="text-stat-item">
+                    <div class="text-stat-value" style="font-size: 1rem;">{{ metrics.model_name }}</div>
+                    <div class="text-stat-label">Model</div>
+                </div>
+                <div class="text-stat-item">
+                    <div class="text-stat-value">{{ metrics.train_samples }}</div>
+                    <div class="text-stat-label">Training Samples</div>
+                </div>
+                <div class="text-stat-item">
+                    <div class="text-stat-value">{{ metrics.test_samples }}</div>
+                    <div class="text-stat-label">Test Samples</div>
+                </div>
+                <div class="text-stat-item">
+                    <div class="text-stat-value">{{ metrics.training_time }}s</div>
+                    <div class="text-stat-label">Training Time</div>
+                </div>
+                <div class="text-stat-item">
+                    <div class="text-stat-value">{{ metrics.feature_count }}</div>
+                    <div class="text-stat-label">Features</div>
+                </div>
+                <div class="text-stat-item">
+                    <div class="text-stat-value">{{ metrics.total_time }}s</div>
+                    <div class="text-stat-label">Total Pipeline Time</div>
+                </div>
+            </div>
+        </div>
+
+        {% else %}
+
+        <div class="glass-card no-hover text-center" style="padding: 60px 24px;" data-aos="fade-up">
+            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--warning); margin-bottom: 16px;"></i>
+            <h3>Model Not Trained Yet</h3>
+            <p class="text-muted mt-1">Please run <code>python train_model.py</code> to train the model and generate metrics.</p>
+        </div>
+
+        {% endif %}
+
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+{% if metrics and metrics.roc_curve %}
+<script>
+    // ROC Curve Chart
+    const rocCtx = document.getElementById('rocChart');
+    if (rocCtx) {
+        const fpr = {{ metrics.roc_curve.fpr | tojson }};
+        const tpr = {{ metrics.roc_curve.tpr | tojson }};
+
+        new Chart(rocCtx, {
+            type: 'line',
+            data: {
+                labels: fpr,
+                datasets: [
+                    {
+                        label: 'ROC Curve (AUC = {{ metrics.roc_auc }})',
+                        data: tpr,
+                        borderColor: '#6c5ce7',
+                        backgroundColor: 'rgba(108, 92, 231, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Random (AUC = 0.5)',
+                        data: fpr,
+                        borderColor: 'rgba(150,150,150,0.4)',
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        borderWidth: 1,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: getComputedStyle(document.body).getPropertyValue('--text-secondary').trim(),
+                            font: { family: 'Inter', size: 11 }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'False Positive Rate', color: '#636e72' },
+                        ticks: { color: '#636e72', maxTicksLimit: 6 },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    },
+                    y: {
+                        title: { display: true, text: 'True Positive Rate', color: '#636e72' },
+                        ticks: { color: '#636e72' },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    }
+                }
+            }
+        });
+    }
+
+    // Animate counter values
+    document.querySelectorAll('.info-card-value[data-count]').forEach(el => {
+        const target = parseInt(el.dataset.count) || 0;
+        const duration = 2000;
+        const start = performance.now();
+        function update(now) {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            el.textContent = Math.round(target * eased).toLocaleString();
+            if (progress < 1) requestAnimationFrame(update);
+        }
+        requestAnimationFrame(update);
+    });
+</script>
+{% endif %}
+{% endblock %}

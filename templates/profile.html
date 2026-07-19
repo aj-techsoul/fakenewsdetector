@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Account Settings — FakeGuard AI{% endblock %}
+
+{% block content %}
+
+<div class="workspace-header" data-aos="fade-down">
+    <div class="header-titles">
+        <h1>Account Settings</h1>
+        <p class="text-muted">Manage your profile information, password, and security configurations</p>
+    </div>
+</div>
+
+<div class="workspace-grid mt-3">
+    
+    <!-- Profile Info Form -->
+    <div class="input-pane" data-aos="fade-right">
+        <div class="glass-card no-hover workspace-card">
+            <h3>Update Profile</h3>
+            
+            <form action="{{ url_for('auth.update_profile') }}" method="POST" enctype="multipart/form-data" class="profile-form mt-2">
+                <!-- Avatar Preview -->
+                <div class="avatar-upload-block mb-3">
+                    {% if current_user.profile_pic %}
+                        <img src="/uploads/{{ current_user.profile_pic }}" alt="Avatar" class="avatar-preview-img">
+                    {% else %}
+                        <div class="avatar-preview-placeholder">{{ current_user.username[:2].upper() }}</div>
+                    {% endif %}
+                    <div class="upload-controls">
+                        <label for="profile_pic" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-camera"></i> Change Photo
+                        </label>
+                        <input type="file" name="profile_pic" id="profile_pic" class="hidden-input" accept="image/*">
+                        <span class="file-info text-muted mt-1" id="fileInfo">No file selected</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="full_name">Full Name</label>
+                    <input type="text" name="full_name" id="full_name" value="{{ current_user.full_name }}" required class="form-control">
+                </div>
+
+                <div class="form-group mt-2">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" value="{{ current_user.username }}" disabled class="form-control" style="opacity: 0.6; cursor: not-allowed;">
+                </div>
+
+                <div class="form-group mt-2">
+                    <label for="email">Email Address</label>
+                    <input type="email" name="email" id="email" value="{{ current_user.email }}" required class="form-control">
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">
+                    Save Profile Changes
+                </button>
+            </form>
+        </div>
+
+        <!-- Change Password Card -->
+        <div class="glass-card no-hover workspace-card mt-3">
+            <h3>Change Password</h3>
+            
+            <form action="{{ url_for('auth.change_password') }}" method="POST" class="password-form mt-2">
+                <div class="form-group">
+                    <label for="current_password">Current Password</label>
+                    <input type="password" name="current_password" id="current_password" required class="form-control">
+                </div>
+                <div class="form-group mt-2">
+                    <label for="new_password">New Password</label>
+                    <input type="password" name="new_password" id="new_password" required class="form-control">
+                </div>
+                <div class="form-group mt-2">
+                    <label for="confirm_password">Confirm New Password</label>
+                    <input type="password" name="confirm_password" id="confirm_password" required class="form-control">
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">
+                    Update Password
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Active User Logs -->
+    <div class="output-pane" data-aos="fade-left">
+        <div class="glass-card no-hover workspace-card">
+            <h3>Recent Security Logs</h3>
+            <p class="text-muted mb-3">Login sessions and database audits for your profile ID</p>
+            
+            <div class="security-logs-list">
+                {% if logs %}
+                    {% for log in logs %}
+                    <div class="security-log-item">
+                        <div class="log-info">
+                            <span class="log-action"><strong>{{ log.action }}</strong></span>
+                            <span class="log-ip text-muted"><i class="fas fa-network-wired"></i> IP: {{ log.ip_address }}</span>
+                        </div>
+                        <span class="log-time text-muted">{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted text-center py-4">No active logs logged yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // File upload label updater
+    const fileInput = document.getElementById('profile_pic');
+    const fileInfo = document.getElementById('fileInfo');
+    if (fileInput && fileInfo) {
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                fileInfo.textContent = file.name;
+            } else {
+                fileInfo.textContent = 'No file selected';
+            }
+        });
+    }
+</script>
+{% endblock %}
